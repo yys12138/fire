@@ -1,0 +1,377 @@
+﻿<!DOCTYPE html>  
+<html>  
+<head>  
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />  
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />  
+    <style type="text/css">  
+        body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;}  
+        #golist {display: none;}  
+        @media (max-device-width: 780px){#golist{display: block !important;}}  
+    </style>  
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ZaKbHLjMwfscwoqcW7icMsYItGH9ir57"></script>
+    <title>地图官网展示效果</title>  
+</head>  
+<body>    
+    <div id="allmap"></div>  
+</body>  
+</html>  
+<script type="text/javascript">  
+	// 百度地图API功能  
+    var map = new BMap.Map("allmap");// 创建Map实例
+    var startpoint_hospital = new BMap.Point(116.404, 39.915);
+    var position = new BMap.Point(116.32377, 39.967031);// 创建点坐标
+	map.centerAndZoom(point, 15);                // 初始化地图,设置中心点坐标和地图级别  
+	map.enableScrollWheelZoom();                 // 启用滚轮放大缩小
+	map.addControl(new BMap.ZoomControl());      // 添加地图缩放控件 
+	map.addControl(new BMap.ScaleControl());     // 添加比例尺控件
+
+    LoadMap("北京");
+   
+	// 定位城市
+	function LoadMap(city) {                       
+		map.centerAndZoom(city, 12);                 // 初始化地图,设置中心点坐标和地图级别 15更详细
+		map.enableScrollWheelZoom();                 // 启用滚轮放大缩小
+		map.addControl(new BMap.ZoomControl());      // 添加地图缩放控件 
+		map.addControl(new BMap.ScaleControl());     // 添加比例尺控件
+    }	
+
+    function start1() {
+       
+        var myIcon = new BMap.Icon("fire.gif", new BMap.Size(300, 157));
+        var marker2 = new BMap.Marker(position, { icon: myIcon });  // 创建标注
+        map.addOverlay(marker2);
+        alert("发生火灾");
+    }
+
+
+	// 根据中心点关键字周边搜索
+	function SearchNearbyMap(city, key) {
+		map.centerAndZoom(city, 12);                 // 初始化地图,设置中心点坐标和地图级别 15更详细
+		
+		var point = new BMap.Point(104.083, 30.686); // 默认中心点
+		var marker = new BMap.Marker(point);         // 计划调用自定义
+		
+		//清除覆盖物再加载，否则多次点击不断添加
+		//map.removeOverlay(Overlay);                // 清除指定覆盖物
+        map.clearOverlays();                         // 清除全部
+
+		var local = new BMap.LocalSearch(map, {
+			renderOptions:{map: map, autoViewport:true}
+		});
+		local.searchNearby(key, city);
+		
+		map.addControl(new BMap.NavigationControl()); //左上角控件
+		map.enableScrollWheelZoom();                 // 启用滚轮放大缩小
+		map.addControl(new BMap.ZoomControl());      // 添加地图缩放控件 
+		map.addControl(new BMap.ScaleControl());     // 添加比例尺控件
+	}
+	
+	// 根据中心点关键字周边搜索 停车场
+	function SearchCarMap(city) {
+		map.centerAndZoom(city, 12);                 // 初始化地图,设置中心点坐标和地图级别 15更详细
+        map.clearOverlays();                         // 清除全部覆盖物再加载，否则多次点击不断添加
+		var local = new BMap.LocalSearch(map, {
+			renderOptions:{map: map, autoViewport:true}
+		});
+		local.searchNearby("停车场", city);
+		
+		map.addControl(new BMap.NavigationControl()); //左上角控件
+		map.enableScrollWheelZoom();                 // 启用滚轮放大缩小
+		map.addControl(new BMap.ZoomControl());      // 添加地图缩放控件 
+		map.addControl(new BMap.ScaleControl());     // 添加比例尺控件
+	}
+
+    // 当前位置定位 北理 人民大学  
+    function LocateMyPlcae() {
+    	map.clearOverlays(); 
+    	var pointA_A = 116.32377;
+    	var pointA_B = 39.967031;
+    	var pointA = new BMap.Point(pointA_A, pointA_B);  
+
+    	var pointB_A = 116.34964;
+    	var pointB_B = 39.957990;
+    	var pointB = new BMap.Point(pointB_A, pointB_B); 
+
+    	var pointC = new BMap.Point((pointA_A+pointB_A)/2, 
+    						(pointA_B+pointB_B)/2); 
+    	map.centerAndZoom(pointC, 15);
+    	
+		var markerA = new BMap.Marker(pointA);
+		var markerB = new BMap.Marker(pointB); 
+		// 将标注添加到地图中
+		//map.addOverlay(markerA);                      
+		//map.addOverlay(markerB);  
+
+		// 创建标注1 
+		addMarker(pointA, "北京理工大学", "地址：北京理工大学11号学生公寓");          
+        // 创建标注2 
+    	addMarker(pointB, "北京交通大学", "地址：北京交通大学第一教学楼");          
+  
+    	// 开始测距        
+    	var polyline = new BMap.Polyline([pointA, pointB], { strokeColor: "orange", strokeWeight: 6, strokeOpacity: 0.5 });     // 定义折线  
+    	map.addOverlay(polyline);                       // 添加折线到地图上 
+
+    	// 监听标注事件 获取两点距离,保留小数点后两位  
+    	polyline.addEventListener("click", function () {    //          
+        	alert('两地距离是：' + 
+        		(map.getDistance(pointA, pointB)).toFixed(2) + ' 米。');   
+    	});
+       
+		map.enableScrollWheelZoom();                 // 启用滚轮放大缩小
+		map.addControl(new BMap.ZoomControl());      // 添加地图缩放控件 
+		map.addControl(new BMap.ScaleControl());     // 添加比例尺控件
+		map.addControl(new BMap.NavigationControl());
+		map.addControl(new BMap.OverviewMapControl());
+    }
+    
+    function GetResMyPlace() {
+    	map.clearOverlays(); 
+
+    	var pointA_A = 116.32377;
+    	var pointA_B = 39.967031;
+    	var pointA = new BMap.Point(pointA_A, pointA_B);  
+
+    	var pointB_A = 116.34964;
+    	var pointB_B = 39.957990;
+    	var pointB = new BMap.Point(pointB_A, pointB_B); 
+
+    	var pointC = new BMap.Point((pointA_A+pointB_A)/2, 
+    						(pointA_B+pointB_B)/2); 
+    	map.centerAndZoom(pointC, 15);
+    	map.enableScrollWheelZoom();                 // 启用滚轮放大缩小
+    	
+    	var markerA = new BMap.Marker(pointA);
+		var markerB = new BMap.Marker(pointB);  
+
+		// 创建标注1 
+		addMarker(pointA, "北京理工大学", "地址：北京理工大学11号学生公寓");          
+        // 创建标注2 
+    	addMarker(pointB, "北京交通大学", "地址：北京交通大学第一教学楼");          
+  
+    	// 开始测距        
+    	var polyline = new BMap.Polyline([pointA, pointB], { strokeColor: "orange", strokeWeight: 6, strokeOpacity: 0.5 });     // 定义折线  
+    	map.addOverlay(polyline);                       // 添加折线到地图上 
+
+    	// 监听标注事件 获取两点距离,保留小数点后两位  
+    	polyline.addEventListener("click", function () {    //          
+        	alert('两地距离是：' + 
+        		(map.getDistance(pointA, pointB)).toFixed(2) + ' 米。');   
+    	});  
+
+    	/*
+    	var local = new BMap.LocalSearch(map, {
+	  		renderOptions:{map: map}
+		});
+    	// 自己规定范围
+		var bs = new BMap.Bounds(pointA, pointB);
+		local.searchInBounds("餐馆", bs);
+		*/
+
+		var local = new BMap.LocalSearch(map, {
+			renderOptions:{map: map}
+		});
+		local.search("餐馆");
+		
+
+		map.addControl(new BMap.ZoomControl());      // 添加地图缩放控件 
+		map.addControl(new BMap.ScaleControl());     // 添加比例尺控件
+		map.addControl(new BMap.NavigationControl());
+		map.addControl(new BMap.OverviewMapControl());
+
+    }
+
+    //救援路径规划
+    function Routeplanning(jing, wei)
+    {
+        alert("事故发生地点最近的医院在" + jing + "," + wei);
+        var posi = new BMap.Point(jing, wei);
+        startpoint_hospital = posi;
+    }
+
+    // 导航
+    function RouteMyPlace() {
+    	map.clearOverlays(); 
+
+    	var pointA_A = 116.32377;
+    	var pointA_B = 39.967031;
+    	var pointA = new BMap.Point(pointA_A, pointA_B);  
+
+    	var pointB_A = 116.34964;
+    	var pointB_B = 39.957990;
+    	var pointB = new BMap.Point(pointB_A, pointB_B); 
+
+    	var pointC = new BMap.Point((pointA_A+pointB_A)/2, 
+    						(pointA_B+pointB_B)/2); 
+    	map.centerAndZoom(pointC, 15);
+    	map.enableScrollWheelZoom();                 // 启用滚轮放大缩小
+    	
+    	var markerA = new BMap.Marker(pointA);
+		var markerB = new BMap.Marker(pointB);  
+    	map.addOverlay(markerA);
+    	map.addOverlay(markerB);
+
+		markerA.addEventListener("click", function(){
+			/*start|end：（必选）
+			{name:string,latlng:Lnglat}
+			opts:
+			mode：导航模式，固定为
+			BMAP_MODE_TRANSIT、BMAP_MODE_DRIVING、
+			BMAP_MODE_WALKING、BMAP_MODE_NAVIGATION
+			分别表示公交、驾车、步行和导航，（必选）
+			region：城市名或县名  当给定region时，认为起点和终点都在同一城市，除非单独给定起点或终点的城市
+			origin_region/destination_region：同上
+			*/
+			var start = {
+				 name:"北京理工大学"
+			}
+			var end = {
+				name:"北京交通大学"
+			}
+			var opts = {
+				mode:BMAP_MODE_DRIVING,
+				region:"北京"
+			}
+			var ss = new BMap.RouteSearch();
+			ss.routeCall(start,end,opts);
+		});
+
+		map.addControl(new BMap.ZoomControl());      // 添加地图缩放控件 
+		map.addControl(new BMap.ScaleControl());     // 添加比例尺控件
+		map.addControl(new BMap.NavigationControl());
+		map.addControl(new BMap.OverviewMapControl());
+    }
+
+    // 自定义创建标注  
+ function addMarker(point, a, b) {  
+        var marker = new BMap.Marker(point);  
+        map.addOverlay(marker);  
+        marker.addEventListener("click", function () {    // 监听标注事件    
+            var opts = {         // 创建信息窗口  
+                width: 250,      // 信息窗口宽度      
+                height: 100,     // 信息窗口高度      
+                title: a         // 信息窗口标题     
+            }  
+            var infoWindow = new BMap.InfoWindow(b, opts);  // 创建信息窗口对象      
+            map.openInfoWindow(infoWindow, point);          // 打开信息窗口                 
+        });  
+    }
+    
+    //多点并行
+
+    function moni()
+    {
+        var bounds = null;
+        var linesPoints = null;
+        var spoi1 = startpoint_hospital ;  // 起点1
+        var spoi2 = new BMap.Point(116.380967, 39.953285);    // 起点2
+        var epoi = position;  // 终点
+        var myIcon = new BMap.Icon("http://lbsyun.baidu.com/jsdemo/img/Mario.png", new BMap.Size(32, 70), { imageOffset: new BMap.Size(0, 0) });
+        function initLine() {
+            bounds = new Array();
+            linesPoints = new Array();
+            map.clearOverlays();                                                    // 清空覆盖物
+            var driving3 = new BMap.DrivingRoute(map, { onSearchComplete: drawLine });  // 驾车实例,并设置回调
+            driving3.search(spoi1, epoi);                                       // 搜索一条线路
+            var driving4 = new BMap.DrivingRoute(map, { onSearchComplete: drawLine });  // 驾车实例,并设置回调
+            driving4.search(spoi2, epoi);                                       // 搜索一条线路
+        }
+        function run() {
+            for (var m = 0; m < linesPoints.length; m++) {
+                var pts = linesPoints[m];
+                var len = pts.length;
+                var carMk = new BMap.Marker(pts[0], { icon: myIcon });
+                map.addOverlay(carMk);
+                resetMkPoint(1, len, pts, carMk)
+            }
+
+            function resetMkPoint(i, len, pts, carMk) {
+                carMk.setPosition(pts[i]);
+                if (i < len) {
+                    setTimeout(function () {
+                        i++;
+                        resetMkPoint(i, len, pts, carMk);
+                    }, 100);
+                }
+            }
+
+        }
+        function drawLine(results) {
+            var opacity = 0.45;
+            var planObj = results.getPlan(0);
+            var b = new Array();
+            var addMarkerFun = function (point, imgType, index, title) {
+                var url;
+                var width;
+                var height
+                var myIcon;
+                // imgType:1的场合，为起点和终点的图；2的场合为车的图形
+                if (imgType == 1) {
+                    url = "http://lbsyun.baidu.com/jsdemo/img/dest_markers.png";
+                    width = 42;
+                    height = 34;
+                    myIcon = new BMap.Icon(url, new BMap.Size(width, height), { offset: new BMap.Size(14, 32), imageOffset: new BMap.Size(0, 0 - index * height) });
+                } else {
+                    url = "http://lbsyun.baidu.com/jsdemo/img/trans_icons.png";
+                    width = 22;
+                    height = 25;
+                    var d = 25;
+                    var cha = 0;
+                    var jia = 0
+                    if (index == 2) {
+                        d = 21;
+                        cha = 5;
+                        jia = 1;
+                    }
+                    myIcon = new BMap.Icon(url, new BMap.Size(width, d), { offset: new BMap.Size(10, (11 + jia)), imageOffset: new BMap.Size(0, 0 - index * height - cha) });
+                }
+
+                var marker = new BMap.Marker(point, { icon: myIcon });
+                if (title != null && title != "") {
+                    marker.setTitle(title);
+                }
+                // 起点和终点放在最上面
+                if (imgType == 1) {
+                    marker.setTop(true);
+                }
+                map.addOverlay(marker);
+            }
+            var addPoints = function (points) {
+                for (var i = 0; i < points.length; i++) {
+                    bounds.push(points[i]);
+                    b.push(points[i]);
+                }
+            }
+            // 绘制驾车步行线路
+            for (var i = 0; i < planObj.getNumRoutes(); i++) {
+                var route = planObj.getRoute(i);
+                if (route.getDistance(false) <= 0) { continue; }
+                addPoints(route.getPath());
+                // 驾车线路
+                if (route.getRouteType() == BMAP_ROUTE_TYPE_DRIVING) {
+                    map.addOverlay(new BMap.Polyline(route.getPath(), { strokeColor: "#0030ff", strokeOpacity: opacity, strokeWeight: 6, enableMassClear: true }));
+                } else {
+                    // 步行线路有可能为0
+                    map.addOverlay(new BMap.Polyline(route.getPath(), { strokeColor: "#30a208", strokeOpacity: 0.75, strokeWeight: 4, enableMassClear: true }));
+                }
+            }
+            map.setViewport(bounds);
+            // 终点
+            addMarkerFun(results.getEnd().point, 1, 1);
+            // 开始点
+            addMarkerFun(results.getStart().point, 1, 0);
+            linesPoints[linesPoints.length] = b;
+        }
+        initLine();
+        setTimeout(function () {
+            run();
+        }, 1500);
+    }
+
+    //实时路况
+    function now()
+    {
+        mMapView.setTraffic(true);
+    }
+   
+    
+</script>  
